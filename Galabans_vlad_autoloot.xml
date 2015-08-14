@@ -92,26 +92,30 @@ function got_gmcp_room()
 end
 
 autoLoot = -1
-autoSet = true
+autoReset = true
+calledFromPlugin = false
 
 function sendAutolootIfNeeded()
 
     -- If we are in vlad and autoloot is not OFF (either ON or Unknown)
-
+    
+    calledFromPlugin = false
     if (room_id >= 15970 and room_id <= 16070) then
         if (autoLoot ~= 2) then
 
             Note("Entering Vlad.  Turning off Autoloot.")
+            calledFromPlugin = true
+            autoReset = true
             Send("autoloot")
-            autoSet = true
         end
     else
         -- If they turn off autoloot and go to vlad, don't turn it back once we leave.
-        if (autoLoot ~= 1 and autoSet == true) then
+        if (autoLoot ~= 1 and autoReset == true) then
             Note("Leaving Vlad.  Turning on Autoloot.")
 
+            calledFromPlugin = true
+            autoReset = false
             Send("autoloot")
-            autoSet = false
         end
     end
 end
@@ -127,7 +131,10 @@ function setAutoloot(newval)
         return
     end
 
-    sendAutolootIfNeeded()
+    if (calledFromPlugin == true) then
+        sendAutolootIfNeeded()
+    end
+    
 end
 
 
